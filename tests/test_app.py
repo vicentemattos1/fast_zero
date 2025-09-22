@@ -1,14 +1,33 @@
 from http import HTTPStatus
 
-from fastapi.testclient import TestClient
 
-from fast_zero.app import app
+def test_create_user(client):
+    response = client.post(
+        '/users/',
+        json={
+            'username': 'alice',
+            'email': 'alice@example.com',
+            'password': '123456',
+        },
+    )
+    assert response.status_code == HTTPStatus.CREATED
+    assert response.json() == {
+        'id': 1,
+        'username': 'alice',
+        'email': 'alice@example.com',
+    }
 
 
-def test_root_should_return_hello_world():
-    client = TestClient(app)
+def test_read_users(client):
+    response = client.get('/users/')
 
-    response = client.get('/')
-
-    assert response.json() == {'message': 'Hello world'}
-    assert response.status_code() == HTTPStatus.OK
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {
+        'users': [
+            {
+                'id': 1,
+                'email': 'alice@example.com',
+                'username': 'alice',
+            }
+        ]
+    }
